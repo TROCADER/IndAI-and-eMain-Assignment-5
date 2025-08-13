@@ -17,7 +17,8 @@ from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-from sklearn.neighbors import KernelDensity
+from sklearn.neighbors import KernelDensity, NearestNeighbors
+from kneed import KneeLocator
 
 
 #%% utility functions
@@ -35,7 +36,7 @@ def show_scatter(x,y):
 def get_ground_level(pcd):
     # Kernel Density Estimation
     data = pcd[:,2].reshape(-1, 1)
-    kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(data)
+    kde = KernelDensity(kernel="gaussian", bandwidth=0.5).fit(data)
 
     x_points = np.linspace(data.min(), data.max(), 1000).reshape(-1, 1)
     dense = kde.score_samples(x_points)
@@ -43,7 +44,7 @@ def get_ground_level(pcd):
     return x_points[np.argmax(dense)][0]
 
 def make_height_hist(pcd):
-    plt.hist(pcd[:,2], bins='auto')
+    plt.hist(pcd[:,2], bins="auto")
     plt.show()
 
 #%% read file containing point cloud data
@@ -133,10 +134,24 @@ Report the optimal value of eps in the Readme to your github project
 Add the elbow plots to your github project Readme
 Add the cluster plots to your github project Readme
 '''
+def optimal_eps(pcd):
+    # k-Nearest Neighbors
+    neighbors = NearestNeighbors(n_neighbors=20)
+    neighbors.fit(pcd)
 
+    distances, indices = neighbors.kneighbors(pcd)
+    distances_sorted = np.sort(distances, axis=0)
+    distances_sorted_k_useable = distances_sorted[:,1]
 
+    # Convex, increasing
+    # plt.plot(distances_sorted_k_useable)
+    # plt.show()
 
+    knee = KneeLocator(range(len(distances_sorted_k_useable)), distances_sorted_k_useable, curve="convex", direction="increasing")
 
+    return distances_sorted_k_useable[knee.knee]
+
+optimal_eps(pcd_above_ground)
 #%%
 '''
 Task 3 (+1)
