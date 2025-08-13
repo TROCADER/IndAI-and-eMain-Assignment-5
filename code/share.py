@@ -77,7 +77,14 @@ Add the histogram plots to your project readme
 est_ground_level = get_ground_level(pcd1)
 print(est_ground_level)
 
-pcd_above_ground = pcd1[pcd1[:,2] > est_ground_level] 
+# TODO: Note to self. Add to report in discussion
+# Added as the KDE-approach is a bit too precise and such the track will not
+# be removed. By adding just a little bit of extra height, the track is fully
+# removed and the number of points are reduced significantly
+# TODO: Specific number might need some refining
+height_margin = 0.5
+
+pcd_above_ground = pcd1[pcd1[:,2] > (est_ground_level + height_margin)] 
 #%%
 pcd_above_ground.shape
 
