@@ -17,10 +17,14 @@ from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
+from sklearn.neighbors import KernelDensity
+
 
 #%% utility functions
 def show_cloud(points_plt):
     ax = plt.axes(projection='3d')
+    
+    # Index: 0 = x, 1 = y, 2 = z
     ax.scatter(points_plt[:,0], points_plt[:,1], points_plt[:,2], s=0.01)
     plt.show()
 
@@ -29,18 +33,32 @@ def show_scatter(x,y):
     plt.show()
 
 def get_ground_level(pcd):
-    return 64
+    # Kernel Density Estimation
+    data = pcd[:,2].reshape(-1, 1)
+    kde = KernelDensity(kernel='gaussian', bandwidth=0.5).fit(data)
 
+    x_points = np.linspace(data.min(), data.max(), 1000).reshape(-1, 1)
+    dense = kde.score_samples(x_points)
+
+    return x_points[np.argmax(dense)][0]
+
+def make_height_hist(pcd):
+    plt.hist(pcd[:,2], bins='auto')
+    plt.show()
 
 #%% read file containing point cloud data
-pcd = np.load("dataset1.npy")
+pcd1 = np.load("dataset1.npy")
+pcd2 = np.load("dataset2.npy")
 
-pcd.shape
+pcd1.shape
+
+# %%
+make_height_hist(pcd1)
 
 #%% show downsampled data in external window
 %matplotlib qt
-show_cloud(pcd)
-#show_cloud(pcd[::10]) # keep every 10th point
+# show_cloud(pcd1)
+show_cloud(pcd1[::10]) # keep every 10th point
 
 #%% remove ground plane
 
@@ -56,10 +74,10 @@ For both the datasets
 Report the ground level in the readme file in your github project
 Add the histogram plots to your project readme
 '''
-est_ground_level = get_ground_level(pcd)
+est_ground_level = get_ground_level(pcd1)
 print(est_ground_level)
 
-pcd_above_ground = pcd[pcd[:,2] > est_ground_level] 
+pcd_above_ground = pcd1[pcd1[:,2] > est_ground_level] 
 #%%
 pcd_above_ground.shape
 
