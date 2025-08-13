@@ -93,7 +93,7 @@ show_cloud(pcd_above_ground)
 
 
 # %%
-unoptimal_eps = 10
+unoptimal_eps = 4
 # find the elbow
 clustering = DBSCAN(eps = unoptimal_eps, min_samples=5).fit(pcd_above_ground)
 
