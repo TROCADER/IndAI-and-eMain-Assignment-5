@@ -48,7 +48,7 @@ def make_height_hist(pcd):
     plt.show()
 
 #%% read file containing point cloud data
-pcd = np.load("dataset2.npy")
+pcd = np.load("dataset1.npy")
 
 pcd.shape
 
@@ -136,7 +136,7 @@ Add the cluster plots to your github project Readme
 def optimal_eps_finder(pcd):
     # k-Nearest Neighbors
     # TODO: Refine n_neighbors
-    neighbors = NearestNeighbors(n_neighbors=20)
+    neighbors = NearestNeighbors(n_neighbors=10)
     neighbors.fit(pcd)
 
     distances, indices = neighbors.kneighbors(pcd)
@@ -153,6 +153,7 @@ def optimal_eps_finder(pcd):
 
 # %%
 optimal_eps = optimal_eps_finder(pcd_above_ground)
+print(optimal_eps)
 
 # Copy-paste from above plotting segment
 clustering = DBSCAN(eps = optimal_eps, min_samples=5).fit(pcd_above_ground)
