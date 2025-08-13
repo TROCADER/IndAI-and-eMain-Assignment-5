@@ -48,18 +48,17 @@ def make_height_hist(pcd):
     plt.show()
 
 #%% read file containing point cloud data
-pcd1 = np.load("dataset1.npy")
-pcd2 = np.load("dataset2.npy")
+pcd = np.load("dataset2.npy")
 
-pcd1.shape
+pcd.shape
 
 # %%
-make_height_hist(pcd1)
+make_height_hist(pcd)
 
 #%% show downsampled data in external window
 %matplotlib qt
 # show_cloud(pcd1)
-show_cloud(pcd1[::10]) # keep every 10th point
+show_cloud(pcd[::10]) # keep every 10th point
 
 #%% remove ground plane
 
@@ -75,7 +74,7 @@ For both the datasets
 Report the ground level in the readme file in your github project
 Add the histogram plots to your project readme
 '''
-est_ground_level = get_ground_level(pcd1)
+est_ground_level = get_ground_level(pcd)
 print(est_ground_level)
 
 # TODO: Note to self. Add to report in discussion
@@ -85,7 +84,7 @@ print(est_ground_level)
 # TODO: Specific number might need some refining
 height_margin = 0.5
 
-pcd_above_ground = pcd1[pcd1[:,2] > (est_ground_level + height_margin)] 
+pcd_above_ground = pcd[pcd[:,2] > (est_ground_level + height_margin)] 
 #%%
 pcd_above_ground.shape
 
@@ -134,8 +133,9 @@ Report the optimal value of eps in the Readme to your github project
 Add the elbow plots to your github project Readme
 Add the cluster plots to your github project Readme
 '''
-def optimal_eps(pcd):
+def optimal_eps_finder(pcd):
     # k-Nearest Neighbors
+    # TODO: Refine n_neighbors
     neighbors = NearestNeighbors(n_neighbors=20)
     neighbors.fit(pcd)
 
@@ -151,7 +151,31 @@ def optimal_eps(pcd):
 
     return distances_sorted_k_useable[knee.knee]
 
-optimal_eps(pcd_above_ground)
+# %%
+optimal_eps = optimal_eps_finder(pcd_above_ground)
+
+# Copy-paste from above plotting segment
+clustering = DBSCAN(eps = optimal_eps, min_samples=5).fit(pcd_above_ground)
+
+#%%
+clusters = len(set(clustering.labels_)) - (1 if -1 in clustering.labels_ else 0)
+colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, clusters)]
+
+# %%
+# Plotting resulting clusters
+plt.figure(figsize=(10,10))
+plt.scatter(pcd_above_ground[:,0], 
+            pcd_above_ground[:,1],
+            c=clustering.labels_,
+            cmap=matplotlib.colors.ListedColormap(colors),
+            s=2)
+
+
+plt.title('DBSCAN: %d clusters' % clusters,fontsize=20)
+plt.xlabel('x axis',fontsize=14)
+plt.ylabel('y axis',fontsize=14)
+plt.show()
+
 #%%
 '''
 Task 3 (+1)
