@@ -26,11 +26,13 @@ def show_cloud(points_plt):
     ax = plt.axes(projection='3d')
     
     # Index: 0 = x, 1 = y, 2 = z
-    ax.scatter(points_plt[:,0], points_plt[:,1], points_plt[:,2], s=0.01)
+    ax.scatter(points_plt[:,0], points_plt[:,1], points_plt[:,2], s=0.5)
+    plt.tight_layout()
     plt.show()
 
 def show_scatter(x,y):
     plt.scatter(x, y)
+    plt.tight_layout()
     plt.show()
 
 def get_ground_level(pcd):
@@ -38,17 +40,21 @@ def get_ground_level(pcd):
     data = pcd[:,2].reshape(-1, 1)
     kde = KernelDensity(kernel="gaussian", bandwidth=0.5).fit(data)
 
-    x_points = np.linspace(data.min(), data.max(), 1000).reshape(-1, 1)
+    x_points = np.linspace(data.min(), data.max(), 100).reshape(-1, 1)
     dense = kde.score_samples(x_points)
 
     return x_points[np.argmax(dense)][0]
 
 def make_height_hist(pcd):
-    plt.hist(pcd[:,2], bins="auto")
+    plt.hist(pcd[:,2], bins=50)
+    plt.title("Frequency of height in PCD")
+    plt.xlabel("Z-value, height")
+    plt.ylabel("Frequency")
+    plt.tight_layout()
     plt.show()
 
 #%% read file containing point cloud data
-pcd = np.load("dataset1.npy")
+pcd = np.load("dataset2.npy")
 
 pcd.shape
 
@@ -58,7 +64,7 @@ make_height_hist(pcd)
 #%% show downsampled data in external window
 %matplotlib qt
 # show_cloud(pcd1)
-show_cloud(pcd[::10]) # keep every 10th point
+show_cloud(pcd[::2]) # keep every 10th point
 
 #%% remove ground plane
 
@@ -82,14 +88,14 @@ print(est_ground_level)
 # be removed. By adding just a little bit of extra height, the track is fully
 # removed and the number of points are reduced significantly
 # TODO: Specific number might need some refining
-height_margin = 0.5
+height_margin = 0.3
 
 pcd_above_ground = pcd[pcd[:,2] > (est_ground_level + height_margin)] 
 #%%
 pcd_above_ground.shape
 
 #%% side view
-show_cloud(pcd_above_ground)
+show_cloud(pcd_above_ground[::2])
 
 
 # %%
@@ -114,6 +120,7 @@ plt.scatter(pcd_above_ground[:,0],
 plt.title('DBSCAN: %d clusters' % clusters,fontsize=20)
 plt.xlabel('x axis',fontsize=14)
 plt.ylabel('y axis',fontsize=14)
+plt.tight_layout()
 plt.show()
 
 
@@ -175,6 +182,7 @@ plt.scatter(pcd_above_ground[:,0],
 plt.title('DBSCAN: %d clusters' % clusters,fontsize=20)
 plt.xlabel('x axis',fontsize=14)
 plt.ylabel('y axis',fontsize=14)
+plt.tight_layout()
 plt.show()
 
 #%%
