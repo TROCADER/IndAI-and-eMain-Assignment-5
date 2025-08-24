@@ -151,12 +151,24 @@ def optimal_eps_finder(pcd):
     distances_sorted_k_useable = distances_sorted[:,1]
 
     # Convex, increasing
-    # plt.plot(distances_sorted_k_useable)
-    # plt.show()
-
     knee = KneeLocator(range(len(distances_sorted_k_useable)), distances_sorted_k_useable, curve="convex", direction="increasing")
+    eps_optimal = distances_sorted_k_useable[knee.knee]
 
-    return distances_sorted_k_useable[knee.knee]
+    plot_eps(distances_sorted_k_useable, knee, eps_optimal)
+
+    return eps_optimal
+
+def plot_eps(distances_sorted_k_useable, knee, eps_optimal):
+    plt.plot(distances_sorted_k_useable, label="Sorted distances")
+    plt.scatter(knee.knee, eps_optimal, color="red", label=rf"Optimal EPS = {eps_optimal:.2f}")
+    plt.hlines(eps_optimal, 0, len(distances_sorted_k_useable), colors="red")
+    plt.title("Optimal EPS projected on the knee/elbow graph")
+    plt.xlabel("Points")
+    plt.ylabel("EPS value")
+    plt.grid()
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
 
 # %%
 optimal_eps = optimal_eps_finder(pcd_above_ground)
@@ -170,7 +182,7 @@ clusters = len(set(clustering.labels_)) - (1 if -1 in clustering.labels_ else 0)
 colors = [plt.cm.Spectral(each) for each in np.linspace(0, 1, clusters)]
 
 # %%
-# Plotting resulting clusters
+# Plotting resulting clusters 2D
 plt.figure(figsize=(10,10))
 plt.scatter(pcd_above_ground[:,0], 
             pcd_above_ground[:,1],
@@ -184,6 +196,28 @@ plt.xlabel('x axis',fontsize=14)
 plt.ylabel('y axis',fontsize=14)
 plt.tight_layout()
 plt.show()
+
+# %%
+# Plotting resulting clusters 3D
+def show_cloud_clustered(pcd, labels, clusters, colors):
+    ax = plt.axes(projection='3d')
+    scatter = ax.scatter(
+    pcd[:,0],
+    pcd[:,1],
+    pcd[:,2],
+    c=labels,
+    cmap=matplotlib.colors.ListedColormap(colors),
+    s=0.5
+    )
+
+    ax.set_title('DBSCAN: %d clusters' % clusters, fontsize=20)
+    ax.set_xlabel('x axis', fontsize=14)
+    ax.set_ylabel('y axis', fontsize=14)
+    ax.set_zlabel('z axis', fontsize=14)
+    plt.tight_layout()
+    plt.show()
+
+show_cloud_clustered(pcd_above_ground[::2], clustering.labels_[::2], clusters, colors)
 
 #%%
 '''
