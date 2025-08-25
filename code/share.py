@@ -174,8 +174,9 @@ def plot_eps(distances_sorted_k_useable, knee, eps_optimal):
 optimal_eps = optimal_eps_finder(pcd_above_ground)
 print(optimal_eps)
 
+# %%
 # Copy-paste from above plotting segment
-clustering = DBSCAN(eps = optimal_eps, min_samples=5).fit(pcd_above_ground)
+clustering = DBSCAN(eps = optimal_eps + 0.5, min_samples=5).fit(pcd_above_ground)
 
 #%%
 clusters = len(set(clustering.labels_)) - (1 if -1 in clustering.labels_ else 0)
