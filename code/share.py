@@ -68,6 +68,7 @@ def plot_height_hist_with_kde(pcd):
     plt.title("Distribution of heighs")
     plt.xlabel("Z-value, height")
     plt.ylabel("Density")
+    plt.grid()
     plt.legend()
     plt.tight_layout()
     plt.show()
