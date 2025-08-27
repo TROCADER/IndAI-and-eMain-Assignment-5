@@ -38,7 +38,7 @@ def show_scatter(x,y):
 def get_ground_level(pcd):
     # Kernel Density Estimation
     data = pcd[:,2].reshape(-1, 1)
-    kde = KernelDensity(kernel="gaussian", bandwidth=0.5).fit(data)
+    kde = KernelDensity(kernel="gaussian", bandwidth=0.25).fit(data)
 
     x_points = np.linspace(data.min(), data.max(), 100).reshape(-1, 1)
     dense = kde.score_samples(x_points)
@@ -53,13 +53,33 @@ def make_height_hist(pcd):
     plt.tight_layout()
     plt.show()
 
+def plot_height_hist_with_kde(pcd):
+    data = pcd[:,2]
+    plt.hist(data, bins=50, density=True, label="Histogram")
+
+    # KDE
+    data = pcd[:,2].reshape(-1, 1)
+    kde = KernelDensity(kernel="gaussian", bandwidth=0.25).fit(data)
+
+    x_points = np.linspace(data.min(), data.max(), 100).reshape(-1, 1)
+    dense = kde.score_samples(x_points)
+    plt.plot(x_points, np.exp(dense), color='red', label="KDE")
+
+    plt.title("Distribution of heighs")
+    plt.xlabel("Z-value, height")
+    plt.ylabel("Density")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
 #%% read file containing point cloud data
-pcd = np.load("dataset2.npy")
+pcd = np.load("dataset1.npy")
 
 pcd.shape
 
 # %%
-make_height_hist(pcd)
+# make_height_hist(pcd)
+plot_height_hist_with_kde(pcd)
 
 #%% show downsampled data in external window
 %matplotlib qt
